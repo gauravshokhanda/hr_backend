@@ -28,13 +28,11 @@ router.get('/attendance', async (req, res) => {
   });
 
   router.put('/attendance/', async (req, res) => {
-    console.log(req.body)
   
     try {
       
-      const { present ,id,studentId } = req.body;
+      const { present ,id } = req.body;
       const obj = {
-        studentId:studentId,
         present :present,
 
       }
