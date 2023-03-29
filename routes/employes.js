@@ -27,14 +27,22 @@ router.get('/attendance', async (req, res) => {
     }
   });
 
-  router.put('/attendance/:studentId/:date', async (req, res) => {
-    try {
-      const { studentId, date } = req.params;
-      const { present } = req.body;
+  router.put('/attendance/', async (req, res) => {
+    console.log(req.body)
   
-      const attendance = await Employes.findOneAndUpdate(
-        { studentId, date },
-        { present },
+    try {
+      
+      const { present ,id,studentId } = req.body;
+      const obj = {
+        studentId:studentId,
+        present :present,
+
+      }
+
+      
+      const attendance = await Employes.updateOne(
+        { _id :id},
+        { $set: obj },
         { new: true }
       );
   
