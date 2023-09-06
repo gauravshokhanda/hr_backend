@@ -1,58 +1,88 @@
-const express   = require('express');
+const express = require("express");
+const router = express.Router();
+const Employee = require("../models/employe");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
-const router    = express.Router();
+// Registration endpoint
+router.post("/register", async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      userName,
+      password,
+      isStaff,
+      isAdmin,
+      dateOfJoining,
+      salary,
+    } = req.body;
 
-const  Employes = require("../models/employe")
+    // Check if an employee with the same username already exists
+    const existingEmployee = await Employee.findOne({ userName });
 
-
-router.get('/attendance', async (req, res) => {
-    try {
-      const attendance = await Employes.find({});
-      res.status(200).json(attendance);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
+    if (existingEmployee) {
+      return res
+        .status(400)
+        .json({ message: "Employee with this username already exists" });
     }
-  });
 
-  router.post('/attendance', async (req, res) => {
-    try {
-      const { studentId, date, present } = req.body;
-      const attendance = new Employes({ studentId, date, present });
-      await attendance.save();
-      res.status(201).json({ message: 'Attendance marked successfully' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
+    // Hash the password before saving it
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const employee = new Employee({
+      firstName,
+      lastName,
+      userName,
+      password: hashedPassword, // Save the hashed password
+      isStaff,
+      isAdmin,
+      dateOfJoining,
+      salary,
+    });
+
+    // Save the employee to the database
+    await employee.save();
+    res.status(201).json({ message: "Employee registered successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// Login endpoint
+router.post("/login", async (req, res) => {
+  try {
+    const { userName, password } = req.body;
+
+    // Find the employee by username
+    const employee = await Employee.findOne({ userName });
+
+    // Check if the employee exists
+    if (!employee) {
+      return res.status(401).json({ message: "Invalid login credentials" });
     }
-  });
 
-  router.put('/attendance/', async (req, res) => {
-  
-    try {
-      
-      const { present ,id } = req.body;
-      const obj = {
-        present :present,
+    // Compare the provided password with the hashed password
+    const passwordMatch = await bcrypt.compare(password, employee.password);
 
-      }
-
-      
-      const attendance = await Employes.updateOne(
-        { _id :id},
-        { $set: obj },
-        { new: true }
-      );
-  
-      if (!attendance) {
-        return res.status(404).json({ message: 'Attendance not found' });
-      }
-  
-      res.status(200).json({ message: 'Attendance updated successfully', attendance });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Invalid login credentials" });
     }
-  });
 
-module.exports = router
+    // Generate a JWT token for authentication
+    const token = jwt.sign(
+      { _id: employee._id, userName: employee.userName },
+      "your-secret-key", // Replace with your actual secret key
+      { expiresIn: "1h" } // You can set the token expiration time
+    );
+
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+module.exports = router;
