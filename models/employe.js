@@ -33,6 +33,9 @@ const employesSchema = new mongoose.Schema({
   salary: {
     type: Number,
   },
+  token: {
+    type: String,
+  },
 });
 
 // Define a method to compare passwords

@@ -3,6 +3,7 @@ const router = express.Router();
 const Employee = require("../models/employe");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const authenticateToken = require("../middleware/authMiddleware");
 
 // Registration endpoint
 router.post("/register", async (req, res) => {
@@ -74,11 +75,24 @@ router.post("/login", async (req, res) => {
     // Generate a JWT token for authentication
     const token = jwt.sign(
       { _id: employee._id, userName: employee.userName },
-      "your-secret-key", // Replace with your actual secret key
-      { expiresIn: "1h" } // You can set the token expiration time
+      process.env.JWT_SECRET, // Use an environment variable for the secret
+      { expiresIn: "8h" }
     );
 
     res.status(200).json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// authenticateToken,
+
+//list
+router.get("/list", async (req, res) => {
+  try {
+    const employees = await Employee.find();
+    res.status(200).json(employees);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
