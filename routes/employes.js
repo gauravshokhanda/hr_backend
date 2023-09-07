@@ -98,4 +98,54 @@ router.get("/list", async (req, res) => {
   }
 });
 
+// Update Employee endpoint
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { firstName, lastName, isStaff, isAdmin, dateOfJoining, salary } =
+      req.body;
+    // Find the employee by ID
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Update the employee's information
+    employee.firstName = firstName;
+    employee.lastName = lastName;
+    employee.isStaff = isStaff;
+    employee.isAdmin = isAdmin;
+    employee.dateOfJoining = dateOfJoining;
+    employee.salary = salary;
+
+    // Save the updated employee to the database
+    await employee.save();
+
+    res.status(200).json({ message: "Employee updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+// View Single Employee endpoint
+router.get("/view/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the employee by ID
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json(employee);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
