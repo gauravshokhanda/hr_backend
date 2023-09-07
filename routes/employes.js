@@ -52,12 +52,10 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login endpoint
 router.post("/login", async (req, res) => {
   try {
     const { userName, password } = req.body;
 
-    // Find the employee by username
     const employee = await Employee.findOne({ userName });
 
     // Check if the employee exists
@@ -79,7 +77,8 @@ router.post("/login", async (req, res) => {
       { expiresIn: "8h" }
     );
 
-    res.status(200).json({ token });
+    // Return the user information and token
+    res.status(200).json({ user: employee, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
