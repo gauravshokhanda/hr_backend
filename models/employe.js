@@ -36,7 +36,6 @@ const employesSchema = new mongoose.Schema({
   designation: {
     type: String,
   },
-
   active: {
     type: Number,
   },

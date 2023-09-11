@@ -1,8 +1,9 @@
-require("dotenv").config();
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
+
+const port = 3000;
 
 app.use(cors());
 
@@ -20,4 +21,8 @@ app.use(express.json());
 const employeRouter = require("./routes/employes");
 app.use("/employes", employeRouter);
 
-app.listen(3000, () => console.log("Server started"));
+const noticeRouter = require("./routes/noticeBoards");
+app.use("/notices", noticeRouter);
+
+
+app.listen(port, () => console.log("Server started at " + port));
