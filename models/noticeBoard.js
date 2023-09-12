@@ -13,6 +13,10 @@ const noticeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  noticeDate: {
+    type: Date,
+    required: true,
+  },
   tags: {
     type: [String],
     enum: ["present", "absent", "late", "holiday"],

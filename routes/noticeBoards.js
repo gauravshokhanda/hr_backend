@@ -5,12 +5,20 @@ const Notice = require("../models/noticeBoard"); // Import the Notice model
 // POST: Create a notice
 router.post("/notice", async (req, res) => {
   try {
-    const { heading, description, imgPath, tags } = req.body;
+    const {
+      heading,
+      description,
+      imgPath,
+      noticeDate,
+      tags
+    } = req.body;
+
 
     const notice = new Notice({
       heading,
       description,
       imgPath,
+      noticeDate: new Date(),
       tags,
     });
 
@@ -28,14 +36,6 @@ router.post("/notice", async (req, res) => {
 router.get("/list", async (req, res) => {
   try {
     const notices = await Notice.find();
-    const mappedNotices = notices.map((notice) => ({
-      _id: notice._id,
-      heading: notice.heading,
-      description: notice.description,
-      imgPath: notice.imgPath,
-      tags: notice.tags,
-    }));
-    console.log(mappedNotices, "notices");
     res.status(200).json(notices);
   } catch (error) {
     if (error.name === "ValidationError") {
