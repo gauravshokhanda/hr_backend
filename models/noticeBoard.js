@@ -17,12 +17,14 @@ const noticeSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  image: {
+    type: String,
+  },
   tags: {
     type: [String],
     enum: ["present", "absent", "late", "holiday"],
     required: false,
   },
 });
-
 
 module.exports = mongoose.model("Notice", noticeSchema);

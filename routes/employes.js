@@ -48,20 +48,26 @@ router.post("/register", upload.single("image"), async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    // Get the uploaded image file and store its path
+    const image = req.file ? req.file.path : "";
+
     const employee = new Employee({
       firstName,
       lastName,
       userName,
-      password: hashedPassword, // Save the hashed password
+      password: hashedPassword,
       isStaff,
       isAdmin,
       dateOfJoining,
       salary,
+      image,
     });
 
     // Save the employee to the database
     await employee.save();
-    res.status(201).json({ message: "Employee registered successfully" });
+    res
+      .status(201)
+      .json({ message: "Employee registered successfully", image });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

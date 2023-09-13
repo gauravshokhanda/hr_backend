@@ -1,18 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const Notice = require("../models/noticeBoard"); // Import the Notice model
+const Notice = require("../models/noticeBoard");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: "./upload/images", // Specify the directory where uploaded images will be stored
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+    );
+  },
+});
+
+const upload = multer({ storage: storage });
 
 // POST: Create a notice
-router.post("/notice", async (req, res) => {
+router.post("/notice", upload.single("image"), async (req, res) => {
   try {
-    const {
-      heading,
-      description,
-      imgPath,
-      noticeDate,
-      tags
-    } = req.body;
-
+    const { heading, description, noticeDate, tags } = req.body;
+    const imgPath = req.file ? req.file.path : null;
 
     const notice = new Notice({
       heading,
@@ -45,7 +53,9 @@ router.get("/list", async (req, res) => {
         validationErrors[field] = error.errors[field].message;
       }
       console.error("Validation errors:", validationErrors);
-      res.status(400).json({ message: "Validation failed", errors: validationErrors });
+      res
+        .status(400)
+        .json({ message: "Validation failed", errors: validationErrors });
     } else {
       console.error("Error saving notice:", error);
       res.status(500).json({ message: "Internal Server Error" });
