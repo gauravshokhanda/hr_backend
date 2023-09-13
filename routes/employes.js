@@ -4,9 +4,25 @@ const Employee = require("../models/employe");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("../middleware/authMiddleware");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-// Registration endpoint
-router.post("/register", async (req, res) => {
+//start engine
+const storage = multer.diskStorage({
+  destination: "./upload/images",
+  filename: (req, file, cb) => {
+    return cb(
+      null,
+      `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`
+    );
+  },
+});
+const upload = multer({
+  storage: storage,
+});
+
+router.post("/register", upload.single("image"), async (req, res) => {
   try {
     const {
       firstName,

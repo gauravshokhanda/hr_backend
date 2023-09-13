@@ -42,6 +42,9 @@ const employesSchema = new mongoose.Schema({
   token: {
     type: String,
   },
+  image: {
+    type: String,
+  },
   attendance: [
     {
       date: {
@@ -57,17 +60,15 @@ const employesSchema = new mongoose.Schema({
   ],
 });
 
-// Define a method to compare passwords
 employesSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Define a method to generate an authentication token (JWT)
 employesSchema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     { _id: this._id, userName: this.userName },
-    "qwertyuiopasdfghjklzxcvbnmm", // Replace with your actual secret key
-    { expiresIn: "8h" } // You can set the token expiration time
+    "qwertyuiopasdfghjklzxcvbnmm",
+    { expiresIn: "8h" }
   );
   return token;
 };
