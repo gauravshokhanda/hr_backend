@@ -88,7 +88,7 @@ router.post("/login", async (req, res) => {
 // authenticateToken,
 
 //list
-router.get("/list", async (req, res) => {
+router.get("/list", authenticateToken, async (req, res) => {
   try {
     const employees = await Employee.find();
     res.status(200).json(employees);
@@ -130,7 +130,7 @@ router.put("/update/:id", async (req, res) => {
 });
 
 // View Single Employee endpoint
-router.get("/view/:id", async (req, res) => {
+router.get("/view/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -147,5 +147,113 @@ router.get("/view/:id", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+router.post("/:id/attendance", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, status } = req.body;
+
+    // Find the employee by ID
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    employee.attendance.push({ date, status });
+    await employee.save();
+
+    res.status(201).json({ message: "Attendance record added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.get("/:id/attendance", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json(employee.attendance);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.put(
+  "/:id/attendance/:attendanceId",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { id, attendanceId } = req.params;
+      const { date, status } = req.body;
+
+      const employee = await Employee.findById(id);
+
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+
+      // Find the attendance record by ID in the employee's attendance array
+      const attendanceRecord = employee.attendance.id(attendanceId);
+
+      if (!attendanceRecord) {
+        return res.status(404).json({ message: "Attendance record not found" });
+      }
+
+      // Update the attendance record
+      attendanceRecord.date = date;
+      attendanceRecord.status = status;
+
+      // Save the updated employee with the modified attendance record
+      await employee.save();
+
+      res
+        .status(200)
+        .json({ message: "Attendance record updated successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+// Delete an attendance record for a specific employee
+router.delete(
+  "/:id/attendance/:attendanceId",
+  authenticateToken,
+  async (req, res) => {
+    try {
+      const { id, attendanceId } = req.params;
+
+      // Find the employee by ID
+      const employee = await Employee.findById(id);
+
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+
+      // Remove the attendance record by ID from the employee's attendance array
+      employee.attendance.pull({ _id: attendanceId });
+
+      // Save the updated employee with the removed attendance record
+      await employee.save();
+
+      res
+        .status(200)
+        .json({ message: "Attendance record deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
 
 module.exports = router;
