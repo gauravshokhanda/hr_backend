@@ -122,35 +122,55 @@ router.get("/list", authenticateToken, async (req, res) => {
   }
 });
 
-router.put("/update/:id", async (req, res) => {
+router.put("/update/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, isStaff, isAdmin, dateOfJoining, salary } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      isStaff,
+      isAdmin,
+      dateOfJoining,
+      salary,
+      email,
+    } = req.body;
 
-    // Find the employee by ID and update the specified fields
-    const updatedEmployee = await Employee.findByIdAndUpdate(
-      id,
-      {
-        $set: {
-          firstName,
-          lastName,
-          isStaff,
-          isAdmin,
-          dateOfJoining,
-          salary,
-        },
-      },
-      { new: true } // Return the updated document
-    );
+    // Check if an image file was uploaded
+    let imagePath;
+    if (req.file) {
+      imagePath = req.file.path; // Get the path to the uploaded image
+    }
 
-    if (!updatedEmployee) {
+    // Find the employee by ID
+    const employee = await Employee.findById(id);
+
+    if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
+    // Update the employee's information
+    employee.firstName = firstName;
+    employee.lastName = lastName;
+    employee.isStaff = isStaff;
+    employee.isAdmin = isAdmin;
+    employee.dateOfJoining = dateOfJoining;
+    employee.salary = salary;
+    employee.email = email;
+
+    // Update the image path if an image was uploaded
+    if (imagePath) {
+      employee.image = imagePath;
+    }
+
+    // Save the updated employee
+    await employee.save();
+
     res
       .status(200)
-      .json({ message: "Employee updated successfully", updatedEmployee });
+      .json({
+        message: "Employee updated successfully",
+        updatedEmployee: employee,
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
