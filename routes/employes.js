@@ -10,7 +10,7 @@ const fs = require("fs");
 
 //start engine
 const storage = multer.diskStorage({
-  destination: "./upload/images",
+  destination: "./upload//images/employees",
   filename: (req, file, cb) => {
     return cb(
       null,
@@ -33,6 +33,7 @@ router.post("/register", upload.single("image"), async (req, res) => {
       isAdmin,
       dateOfJoining,
       salary,
+      userEmail,
     } = req.body;
 
     // Check if an employee with the same username already exists
@@ -61,6 +62,7 @@ router.post("/register", upload.single("image"), async (req, res) => {
       dateOfJoining,
       salary,
       image,
+      userEmail,
     });
 
     // Save the employee to the database
@@ -120,7 +122,6 @@ router.get("/list", authenticateToken, async (req, res) => {
   }
 });
 
-// Update Employee endpoint
 router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
