@@ -25,6 +25,9 @@ app.use("/employes", employeRouter);
 const noticeRouter = require("./routes/noticeBoards");
 app.use("/notices", noticeRouter);
 
+const salaryRouter = require("./routes/salary");
+app.use("/salary", salaryRouter);
+
 app.use("/images", express.static(path.join(__dirname, "upload/images")));
 
 app.listen(port, () => console.log("Server started at " + port));

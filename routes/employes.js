@@ -126,25 +126,30 @@ router.put("/update/:id", async (req, res) => {
     const { id } = req.params;
     const { firstName, lastName, isStaff, isAdmin, dateOfJoining, salary } =
       req.body;
-    // Find the employee by ID
-    const employee = await Employee.findById(id);
 
-    if (!employee) {
+    // Find the employee by ID and update the specified fields
+    const updatedEmployee = await Employee.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          firstName,
+          lastName,
+          isStaff,
+          isAdmin,
+          dateOfJoining,
+          salary,
+        },
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedEmployee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Update the employee's information
-    employee.firstName = firstName;
-    employee.lastName = lastName;
-    employee.isStaff = isStaff;
-    employee.isAdmin = isAdmin;
-    employee.dateOfJoining = dateOfJoining;
-    employee.salary = salary;
-
-    // Save the updated employee to the database
-    await employee.save();
-
-    res.status(200).json({ message: "Employee updated successfully" });
+    res
+      .status(200)
+      .json({ message: "Employee updated successfully", updatedEmployee });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -173,7 +178,7 @@ router.get("/view/:id", authenticateToken, async (req, res) => {
 router.post("/:id/attendance", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { date, status } = req.body;
+    const { date, status, checkIn, checkOut, breakStart, breakEnd } = req.body;
 
     // Find the employee by ID
     const employee = await Employee.findById(id);
@@ -182,7 +187,14 @@ router.post("/:id/attendance", authenticateToken, async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    employee.attendance.push({ date, status });
+    employee.attendance.push({
+      date,
+      status,
+      checkIn,
+      checkOut,
+      breakStart,
+      breakEnd,
+    });
     await employee.save();
 
     res.status(201).json({ message: "Attendance record added successfully" });
