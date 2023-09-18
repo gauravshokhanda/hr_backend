@@ -45,6 +45,9 @@ const employesSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  userEmail: {
+    type: String,
+  },
   attendance: [
     {
       date: {
