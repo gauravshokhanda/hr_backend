@@ -27,7 +27,7 @@ router.post("/notice", upload.single("image"), async (req, res) => {
       description,
       imgPath,
       noticeDate: new Date(),
-      tags,
+      tags: tags.split(","),
     });
 
     // Save the notice to the database
