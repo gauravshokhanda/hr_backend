@@ -132,7 +132,7 @@ router.put("/update/:id", upload.single("image"), async (req, res) => {
       isAdmin,
       dateOfJoining,
       salary,
-      email,
+      userEmail,
     } = req.body;
 
     // Check if an image file was uploaded
@@ -155,7 +155,7 @@ router.put("/update/:id", upload.single("image"), async (req, res) => {
     employee.isAdmin = isAdmin;
     employee.dateOfJoining = dateOfJoining;
     employee.salary = salary;
-    employee.email = email;
+    employee.userEmail = userEmail;
 
     // Update the image path if an image was uploaded
     if (imagePath) {
