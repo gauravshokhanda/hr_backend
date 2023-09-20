@@ -3,8 +3,9 @@ const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
-
+const socketIo = require("socket.io");
 const port = 3000;
+const http = require("http");
 
 app.use(cors());
 
@@ -25,9 +26,31 @@ app.use("/employes", employeRouter);
 const noticeRouter = require("./routes/noticeBoards");
 app.use("/notices", noticeRouter);
 
+const salaryRoutes = require("./routes/salary");
+app.use("/salary", salaryRoutes);
+
 app.use(
   "/upload/images",
   express.static(path.join(__dirname, "upload/images"))
 );
+
+const server = http.createServer(app);
+const io = socketIo(server);
+
+// Listen for WebSocket connections
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  // Handle disconnection
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+
+  // Handle notifications (you can customize this based on your needs)
+  socket.on("sendNotification", (message) => {
+    // Broadcast the message to all connected clients
+    io.emit("receiveNotification", message);
+  });
+});
 
 app.listen(port, () => console.log("Server started at " + port));
