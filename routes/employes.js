@@ -165,12 +165,10 @@ router.put("/update/:id", upload.single("image"), async (req, res) => {
     // Save the updated employee
     await employee.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Employee updated successfully",
-        updatedEmployee: employee,
-      });
+    res.status(200).json({
+      message: "Employee updated successfully",
+      updatedEmployee: employee,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -248,8 +246,9 @@ router.put(
   async (req, res) => {
     try {
       const { id, attendanceId } = req.params;
-      const { date, status } = req.body;
-
+      const { date, status, checkIn, checkOut, breakStart, breakEnd } =
+        req.body;
+        console.log("Request Body:", req.body);
       const employee = await Employee.findById(id);
 
       if (!employee) {
@@ -266,6 +265,10 @@ router.put(
       // Update the attendance record
       attendanceRecord.date = date;
       attendanceRecord.status = status;
+      attendanceRecord.status = checkIn;
+      attendanceRecord.status = checkOut;
+      attendanceRecord.status = breakStart;
+      attendanceRecord.status = breakEnd;
 
       // Save the updated employee with the modified attendance record
       await employee.save();
