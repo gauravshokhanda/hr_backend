@@ -115,4 +115,24 @@ router.post("/checkout", async (req, res) => {
   }
 });
 
+// Attendence get route
+
+router.get("/view/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const attendence = await Attendance.find({employeeId: id});
+
+    if (!attendence) {
+      return res.status(404).json({message: "Attendence not found"})
+    }
+
+    res.status(200).json(attendence);
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
