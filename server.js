@@ -29,6 +29,9 @@ app.use("/notices", noticeRouter);
 const salaryRoutes = require("./routes/salary");
 app.use("/salary", salaryRoutes);
 
+const attendanceRoutes = require("./routes/attendance");
+app.use("/attendance", attendanceRoutes);
+
 app.use(
   "/upload/images",
   express.static(path.join(__dirname, "upload/images"))
