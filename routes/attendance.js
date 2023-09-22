@@ -58,8 +58,9 @@ router.post("/break", async (req, res) => {
       return res.status(404).json({ message: "Attendance record not found" });
     }
 
-    // Add the break start time
-    attendance.breakStart = breakStart;
+    // Add the break start time to the array
+    attendance.breakStart.push(breakStart); // Assuming "breakStart" is a single date
+
     await attendance.save();
 
     return res.status(200).json(attendance);
@@ -68,6 +69,7 @@ router.post("/break", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 // Break End route
 router.post("/breakend", async (req, res) => {
@@ -81,8 +83,9 @@ router.post("/breakend", async (req, res) => {
       return res.status(404).json({ message: "Attendance record not found" });
     }
 
-    // Add the break end time
-    attendance.breakEnd = breakEnd;
+    // Add the break start time to the array
+    attendance.breakEnd.push(breakEnd);
+
     await attendance.save();
 
     return res.status(200).json(attendance);
@@ -100,7 +103,7 @@ router.post("/checkout", async (req, res) => {
     // Find the attendance record by ID
     const attendance = await Attendance.findById(attendanceId);
 
-    if (!attendance) {
+    if (!attendance) {  
       return res.status(404).json({ message: "Attendance record not found" });
     }
 
