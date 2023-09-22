@@ -13,14 +13,18 @@ const attendanceSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
-  breakStart: {
-    type: Date,
-    required: false,
-  },
-  breakEnd: {
-    type: Date,
-    required: false,
-  },
+  breakStart: [
+    {
+      type: Date,
+      required: false,
+    },
+  ],
+  breakEnd: [
+    {
+      type: Date,
+      required: false,
+    },
+  ],
   status: {
     type: String,
     enum: ["present", "absent", "late", "holiday"],
