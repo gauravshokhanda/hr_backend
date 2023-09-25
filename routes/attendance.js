@@ -2,29 +2,34 @@ const express = require("express");
 const router = express.Router();
 const Attendance = require("../models/attendanceModel");
 const Employee = require("../models/employe");
+const moment = require("moment")
 
 // Check-in route
 router.post("/checkin", async (req, res) => {
   try {
     const { employeeId, date, checkIn } = req.body;
 
-    // Check if an attendance record for the given employee and date already exists
-    const existingAttendance = await Attendance.findOne({
-      employee: employeeId,
-      date,
+    const normalizedDate = moment(date).startOf('day'); // Consider only date, not time
+
+    // Fetch all attendance records for the given employee
+    const allAttendanceRecords = await Attendance.find({
+      employeeId: employeeId,
     });
 
-    if (existingAttendance) {
-      // If an attendance record exists, update the check-in time
-      existingAttendance.checkIn = checkIn;
-      existingAttendance.status = "present"; // Mark as present
-      await existingAttendance.save();
-      return res.status(200).json(existingAttendance);
+    // Check if any of the fetched records have the same date as today
+    const hasExistingRecordForToday = allAttendanceRecords.some((record) => {
+      return moment(record.date).isSame(normalizedDate, 'day');
+    });
+
+    if (hasExistingRecordForToday) {
+      // If an attendance record exists for today's date, return an error
+      return res.status(400).json({ message: "Already checked in for this date" });
     }
 
+    console.log(allAttendanceRecords, "employee");
     // Create a new attendance record
     const newAttendance = new Attendance({
-      employee: employeeId,
+      employeeId: employeeId,
       date,
       checkIn,
       status: "present", // Mark as present
@@ -45,6 +50,8 @@ router.post("/checkin", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+
 
 // Break route
 router.post("/break", async (req, res) => {
@@ -130,7 +137,7 @@ router.get("/view/:id", async (req, res) => {
       return res.status(404).json({message: "Attendence not found"})
     }
 
-    res.status(200).json(attendence);
+    res.status(200).json(attendence.reverse());
     
   } catch (error) {
     console.error(error);

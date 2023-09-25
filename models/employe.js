@@ -48,6 +48,12 @@ const employesSchema = new mongoose.Schema({
   userEmail: {
     type: String,
   },
+  accountNumber: {
+    type: String,
+  },
+  ifscCode: {
+    type: String,
+  },
 });
 
 employesSchema.methods.comparePassword = async function (candidatePassword) {
