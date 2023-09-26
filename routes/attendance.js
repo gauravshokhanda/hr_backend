@@ -137,7 +137,7 @@ router.get("/view/:id", async (req, res) => {
       return res.status(404).json({message: "Attendence not found"})
     }
 
-    res.status(200).json(attendence.reverse());
+    res.status(200).json(attendence);
     
   } catch (error) {
     console.error(error);

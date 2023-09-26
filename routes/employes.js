@@ -134,7 +134,7 @@ router.put("/update/:id", upload.single("image"), async (req, res) => {
       salary,
       userEmail,
       accountNumber,
-      ifscCode,
+      ifscCode, 
     } = req.body;
 
     let imagePath;
