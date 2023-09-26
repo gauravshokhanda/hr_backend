@@ -8,6 +8,7 @@ const {
 } = require("../utils/calculatesalary");
 
 // Create a new salary record for an employee
+// Create a new salary record for an employee
 router.post("/create-salary", async (req, res) => {
   try {
     const { employeeId, totalWorkingDays, bonus } = req.body;
@@ -18,14 +19,14 @@ router.post("/create-salary", async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Calculate and save the salary, considering the bonus
-    const calculatedSalary = await calculateAndSaveSalary(
-      employeeId,
-      totalWorkingDays
-    );
+    // Calculate HRA, Conveyance, and PF based on percentages
+    const totalSalary = employee.salary + bonus;
+    const hraSalary = (2 / 100) * totalSalary;
+    const conveyance = (4 / 100) * totalSalary;
+    const pfSalary = (8 / 100) * totalSalary;
 
-    // Add the bonus to the calculated salary
-    const totalSalary = calculatedSalary + bonus;
+    // Calculate Basic Salary as the remaining amount after deducting HRA, Conveyance, and PF
+    const basicSalary = totalSalary - hraSalary - conveyance - pfSalary;
 
     // Create a new salary record
     const salaryRecord = new Salary({
@@ -34,8 +35,12 @@ router.post("/create-salary", async (req, res) => {
       monthlySalary: employee.salary,
       totalWorkingDays,
       bonus,
-      calculatedSalary,
-      totalSalary, // Include the total salary after adding the bonus
+      basicSalary,
+      hraSalary,
+      conveyance,
+      pfSalary,
+      totalSalary,
+      bonus,
     });
 
     // Save the salary record to the database

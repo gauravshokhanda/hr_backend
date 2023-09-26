@@ -18,7 +18,27 @@ const salarySchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  calculatedSalary: {
+  totalSalary: {
+    type: Number,
+    required: true,
+  },
+  bonus: {
+    type: Number,
+    required: true,
+  },
+  basicSalary: {
+    type: Number,
+    required: true,
+  },
+  hraSalary: {
+    type: Number,
+    required: true,
+  },
+  conveyance: {
+    type: Number,
+    required: true,
+  },
+  pfSalary: {
     type: Number,
     required: true,
   },
