@@ -135,6 +135,23 @@ router.get("/view-salary/:employeeId", async (req, res) => {
   }
 });
 
+// Get All User Salary
+
+router.get("/view/employees-salary", async (req, res) => {
+  try {
+    const allEmployeesSalary = await Salary.find();
+    if (!allEmployeesSalary) {
+      return res.status(404).json({ message: "Salary record not found" });
+    }
+
+    res.status(200).json(allEmployeesSalary);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 // Edit a single salary record by employee ID
 router.put("/edit-salary/:employeeId", async (req, res) => {
   try {

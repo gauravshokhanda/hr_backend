@@ -10,7 +10,7 @@ router.post("/checkin", async (req, res) => {
   try {
     const { employeeId, date, checkIn } = req.body;
 
-    const normalizedDate = moment(date).startOf("day"); // Consider only date, not time
+    const normalizedDate = moment(date).startOf("day"); 
 
     // Fetch all attendance records for the given employee
     const allAttendanceRecords = await Attendance.find({
@@ -118,7 +118,7 @@ router.post("/checkin", async (req, res) => {
       date,
     });
 
-    if (!attendance) {
+    if (!existingAttendance) {
       return res.status(404).json({ message: "Attendance record not found" });
     }
   } catch (error) {
