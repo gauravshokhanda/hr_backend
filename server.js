@@ -6,6 +6,7 @@ const path = require("path");
 const socketIo = require("socket.io");
 const port = 3000;
 const http = require("http");
+const io = require("./socket");
 
 app.use(cors());
 
@@ -37,23 +38,7 @@ app.use(
   express.static(path.join(__dirname, "upload/images"))
 );
 
-const server = http.createServer(app);
-const io = socketIo(server);
-
-// Listen for WebSocket connections
-io.on("connection", (socket) => {
-  console.log("A user connected");
-
-  // Handle disconnection
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-
-  // Handle notifications (you can customize this based on your needs)
-  socket.on("sendNotification", (message) => {
-    // Broadcast the message to all connected clients
-    io.emit("receiveNotification", message);
-  });
-});
+const server = http.createServer(app); // Create the HTTP server
+const socketIoServer = socketIo(server);
 
 app.listen(port, () => console.log("Server started at " + port));

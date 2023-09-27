@@ -2,14 +2,15 @@ const express = require("express");
 const router = express.Router();
 const Attendance = require("../models/attendanceModel");
 const Employee = require("../models/employe");
-const moment = require("moment")
+const { io } = require("../socket");
+const moment = require("moment");
 
-// Check-in route
+//checkin
 router.post("/checkin", async (req, res) => {
   try {
     const { employeeId, date, checkIn } = req.body;
 
-    const normalizedDate = moment(date).startOf('day'); // Consider only date, not time
+    const normalizedDate = moment(date).startOf("day"); // Consider only date, not time
 
     // Fetch all attendance records for the given employee
     const allAttendanceRecords = await Attendance.find({
@@ -18,12 +19,14 @@ router.post("/checkin", async (req, res) => {
 
     // Check if any of the fetched records have the same date as today
     const hasExistingRecordForToday = allAttendanceRecords.some((record) => {
-      return moment(record.date).isSame(normalizedDate, 'day');
+      return moment(record.date).isSame(normalizedDate, "day");
     });
 
     if (hasExistingRecordForToday) {
       // If an attendance record exists for today's date, return an error
-      return res.status(400).json({ message: "Already checked in for this date" });
+      return res
+        .status(400)
+        .json({ message: "Already checked in for this date" });
     }
 
     console.log(allAttendanceRecords, "employee");
@@ -43,6 +46,10 @@ router.post("/checkin", async (req, res) => {
     newAttendance.employeeName = `${employee.firstName} ${employee.lastName}`;
     newAttendance.employeeId = employeeId;
 
+    io.emit("attendanceUpdate", {
+      eventType: "checkin",
+      message: `${employee.firstName} ${employee.lastName} checked in.`,
+    });
     await newAttendance.save();
     return res.status(201).json(newAttendance);
   } catch (error) {
@@ -50,8 +57,6 @@ router.post("/checkin", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
-
 
 // Break route
 router.post("/break", async (req, res) => {
@@ -76,7 +81,6 @@ router.post("/break", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 
 // Break End route
 router.post("/breakend", async (req, res) => {
@@ -103,22 +107,20 @@ router.post("/breakend", async (req, res) => {
 });
 
 // Checkout route
-router.post("/checkout", async (req, res) => {
+// Check-in Route (/checkin)
+router.post("/checkin", async (req, res) => {
   try {
-    const { attendanceId, checkOut } = req.body;
+    const { employeeId, date, checkIn } = req.body;
 
-    // Find the attendance record by ID
-    const attendance = await Attendance.findById(attendanceId);
+    // Check if an attendance record for the given employee and date already exists
+    const existingAttendance = await Attendance.findOne({
+      employee: employeeId,
+      date,
+    });
 
-    if (!attendance) {  
+    if (!attendance) {
       return res.status(404).json({ message: "Attendance record not found" });
     }
-
-    // Update the checkout time
-    attendance.checkOut = checkOut;
-    await attendance.save();
-
-    return res.status(200).json(attendance);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -131,14 +133,13 @@ router.get("/view/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const attendence = await Attendance.find({employeeId: id});
+    const attendence = await Attendance.find({ employeeId: id });
 
     if (!attendence) {
-      return res.status(404).json({message: "Attendence not found"})
+      return res.status(404).json({ message: "Attendence not found" });
     }
 
     res.status(200).json(attendence);
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
