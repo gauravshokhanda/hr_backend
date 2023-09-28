@@ -42,6 +42,10 @@ const salarySchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  creditMonth: {
+    type: Date,
+    required: true,
+  }
 });
 
 module.exports = mongoose.model("Salary", salarySchema);

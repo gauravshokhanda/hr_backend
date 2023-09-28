@@ -1,4 +1,5 @@
-const express = require("express");
+ 
+   const express = require("express");
 const router = express.Router();
 const Salary = require("../models/salary");
 const Employee = require("../models/employe");
@@ -11,7 +12,23 @@ const {
 // Create a new salary record for an employee
 router.post("/create-salary", async (req, res) => {
   try {
-    const { employeeId, totalWorkingDays, bonus } = req.body;
+    const { employeeId, totalWorkingDays, bonus, creditMonth } = req.body;
+
+    const normalizedMonth = moment(creditMonth).format('LL'); 
+
+    const allSalaryRecords = await Salary.find({
+      employeeId: employeeId,
+    });
+
+    const hasExistingRecordForMonth = allSalaryRecords.some((record) => {
+      return moment(record.date).isSame(normalizedMonth, "LL");
+    });
+
+    if (hasExistingRecordForMonth) {
+      return res
+        .status(400)
+        .json({ message: "Already credited salary for this month" });
+    }
 
     // Check if the employee with the specified ID exists
     const employee = await Employee.findById(employeeId);
@@ -19,28 +36,31 @@ router.post("/create-salary", async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
+    const totalWorkingDaysNummber = parseFloat(totalWorkingDays);
+    const bonusNumber = parseFloat(bonus);
+
     // Calculate HRA, Conveyance, and PF based on percentages
-    const totalSalary = employee.salary + bonus;
+    const totalSalary = employee.salary + bonusNumber;
     const hraSalary = (2 / 100) * totalSalary;
     const conveyance = (4 / 100) * totalSalary;
     const pfSalary = (8 / 100) * totalSalary;
 
     // Calculate Basic Salary as the remaining amount after deducting HRA, Conveyance, and PF
     const basicSalary = totalSalary - hraSalary - conveyance - pfSalary;
-
     // Create a new salary record
     const salaryRecord = new Salary({
       employeeId,
       employeeName: `${employee.firstName} ${employee.lastName}`,
       monthlySalary: employee.salary,
-      totalWorkingDays,
-      bonus,
+      totalWorkingDays: totalWorkingDaysNummber,
+      bonus: bonusNumber,
       basicSalary,
       hraSalary,
       conveyance,
       pfSalary,
       totalSalary,
       bonus,
+      creditMonth,
     });
 
     // Save the salary record to the database
@@ -145,7 +165,6 @@ router.get("/view/employees-salary", async (req, res) => {
     }
 
     res.status(200).json(allEmployeesSalary);
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -186,12 +205,13 @@ router.put("/edit-salary/:employeeId", async (req, res) => {
 });
 
 // Delete a single salary record by employee ID
-router.delete("/delete-salary/:employeeId", async (req, res) => {
+router.delete("/delete-salary", async (req, res) => {
   try {
-    const { employeeId } = req.params;
+    
+    const { _id, employeeId} = req.body;
 
     // Find and delete the salary record for the specified employee ID
-    const deletedSalaryRecord = await Salary.findOneAndDelete({ employeeId });
+    const deletedSalaryRecord = await Salary.findOneAndDelete({ _id:_id, employeeId:employeeId });
 
     if (!deletedSalaryRecord) {
       return res.status(404).json({ message: "Salary record not found" });
