@@ -1,8 +1,8 @@
- 
-   const express = require("express");
+const express = require("express");
 const router = express.Router();
 const Salary = require("../models/salary");
 const Employee = require("../models/employe");
+const moment = require('moment')
 const {
   calculateAndSaveSalary,
   calculateAndSaveSalaries,
@@ -14,7 +14,7 @@ router.post("/create-salary", async (req, res) => {
   try {
     const { employeeId, totalWorkingDays, bonus, creditMonth } = req.body;
 
-    const normalizedMonth = moment(creditMonth).format('LL'); 
+    const normalizedMonth = moment(creditMonth).format("LL");
 
     const allSalaryRecords = await Salary.find({
       employeeId: employeeId,
@@ -60,7 +60,7 @@ router.post("/create-salary", async (req, res) => {
       pfSalary,
       totalSalary,
       bonus,
-      creditMonth,
+      creditMonth: new Date(),
     });
 
     // Save the salary record to the database
@@ -207,11 +207,13 @@ router.put("/edit-salary/:employeeId", async (req, res) => {
 // Delete a single salary record by employee ID
 router.delete("/delete-salary", async (req, res) => {
   try {
-    
-    const { _id, employeeId} = req.body;
+    const { _id, employeeId } = req.body;
 
     // Find and delete the salary record for the specified employee ID
-    const deletedSalaryRecord = await Salary.findOneAndDelete({ _id:_id, employeeId:employeeId });
+    const deletedSalaryRecord = await Salary.findOneAndDelete({
+      _id: _id,
+      employeeId: employeeId,
+    });
 
     if (!deletedSalaryRecord) {
       return res.status(404).json({ message: "Salary record not found" });
