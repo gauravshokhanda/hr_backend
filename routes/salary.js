@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Salary = require("../models/salary");
 const Employee = require("../models/employe");
-const moment = require('moment')
+const moment = require("moment");
 const {
   calculateAndSaveSalary,
   calculateAndSaveSalaries,
@@ -16,65 +16,74 @@ router.post("/create-salary", async (req, res) => {
 
     const normalizedMonth = moment(creditMonth).format("LL");
 
-    const allSalaryRecords = await Salary.find({
-      employeeId: employeeId,
-    });
-
-    const hasExistingRecordForMonth = allSalaryRecords.some((record) => {
-      return moment(record.date).isSame(normalizedMonth, "LL");
-    });
-
-    if (hasExistingRecordForMonth) {
-      return res
-        .status(400)
-        .json({ message: "Already credited salary for this month" });
-    }
-
     // Check if the employee with the specified ID exists
     const employee = await Employee.findById(employeeId);
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    const totalWorkingDaysNummber = parseFloat(totalWorkingDays);
+    const totalWorkingDaysNumber = parseFloat(totalWorkingDays);
     const bonusNumber = parseFloat(bonus);
 
-    // Calculate HRA, Conveyance, and PF based on percentages
-    const totalSalary = employee.salary + bonusNumber;
-    const hraSalary = (2 / 100) * totalSalary;
-    const conveyance = (4 / 100) * totalSalary;
-    const pfSalary = (8 / 100) * totalSalary;
+    if (isNaN(totalWorkingDaysNumber) || totalWorkingDaysNumber < 0) {
+      return res
+        .status(400)
+        .json({ message: "Invalid totalWorkingDays value" });
+    }
 
-    // Calculate Basic Salary as the remaining amount after deducting HRA, Conveyance, and PF
-    const basicSalary = totalSalary - hraSalary - conveyance - pfSalary;
-    // Create a new salary record
-    const salaryRecord = new Salary({
-      employeeId,
-      employeeName: `${employee.firstName} ${employee.lastName}`,
-      monthlySalary: employee.salary,
-      totalWorkingDays: totalWorkingDaysNummber,
-      bonus: bonusNumber,
-      basicSalary,
-      hraSalary,
-      conveyance,
-      pfSalary,
-      totalSalary,
-      bonus,
-      creditMonth: new Date(),
+    // Check if there is an existing record for the same month
+    const allSalaryRecords = await Salary.find({
+      employeeId: employeeId,
     });
 
-    // Save the salary record to the database
-    await salaryRecord.save();
-
-    res.status(201).json({
-      message: "Salary record created successfully",
-      totalSalary,
+    const hasExistingRecordForMonth = allSalaryRecords.some((record) => {
+      if (record.creditMonth) {
+        return moment(record.creditMonth).format("LL") === normalizedMonth;
+      }
     });
+
+    if (hasExistingRecordForMonth) {
+      console.log("Already credited salary for this month");
+      return res
+        .status(400)
+        .json({ message: "Already credited salary for this month" });
+    } else {
+      // Calculate HRA, Conveyance, and PF based on percentages
+      const totalSalary = employee.salary + bonusNumber;
+      const hraSalary = (2 / 100) * totalSalary;
+      const conveyance = (4 / 100) * totalSalary;
+      const pfSalary = (8 / 100) * totalSalary;
+
+      // Calculate Basic Salary as the remaining amount after deducting HRA, Conveyance, and PF
+      const basicSalary = totalSalary - hraSalary - conveyance - pfSalary;
+      // Create a new salary record
+      const salaryRecord = new Salary({
+        employeeId,
+        employeeName: `${employee.firstName} ${employee.lastName}`,
+        monthlySalary: employee.salary,
+        totalWorkingDays: totalWorkingDaysNumber,
+        bonus: bonusNumber,
+        basicSalary,
+        hraSalary,
+        conveyance,
+        pfSalary,
+        totalSalary,
+        bonus,
+        creditMonth,
+      });
+
+      // Save the salary record to the database
+      await salaryRecord.save();
+
+      console.log("Successfully created salary");
+      return res.status(201).json({ message: "Successfully created salary" });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 router.post("/calculate-salaries", async (req, res) => {
   try {
@@ -142,7 +151,7 @@ router.get("/view-salary/:employeeId", async (req, res) => {
     const { employeeId } = req.params;
 
     // Find the salary record for the specified employee ID
-    const salaryRecord = await Salary.findOne({ employeeId });
+    const salaryRecord = await Salary.find({ employeeId:employeeId });
 
     if (!salaryRecord) {
       return res.status(404).json({ message: "Salary record not found" });
