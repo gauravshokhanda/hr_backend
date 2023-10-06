@@ -3,10 +3,12 @@ const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const http = require("http");
 const socketIo = require("socket.io");
 const port = 3000;
-const http = require("http");
-const io = require("./socket");
+const socketIoInit = require("./socket"); 
+const server = http.createServer(app);
+const io = socketIoInit(server);
 
 app.use(cors());
 
@@ -33,12 +35,14 @@ app.use("/salary", salaryRoutes);
 const attendanceRoutes = require("./routes/attendance");
 app.use("/attendance", attendanceRoutes);
 
+const holidayRoutes = require("./routes/holidayList");
+app.use("/holiday", holidayRoutes);
+
 app.use(
   "/upload/images",
   express.static(path.join(__dirname, "upload/images"))
 );
 
-const server = http.createServer(app); // Create the HTTP server
-const socketIoServer = socketIo(server);
 
-app.listen(port, () => console.log("Server started at " + port));
+
+server.listen(port, () => console.log("Server started at " + port));

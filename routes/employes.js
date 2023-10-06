@@ -97,8 +97,8 @@ router.post("/login", async (req, res) => {
     // Generate a JWT token for authentication
     const token = jwt.sign(
       { _id: employee._id, userName: employee.userName },
-      process.env.JWT_SECRET, // Use an environment variable for the secret
-      { expiresIn: "8h" }
+      process.env.JWT_SECRET,
+      { expiresIn: '8h'  }
     );
 
     // Return the user information and token
