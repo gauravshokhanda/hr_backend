@@ -46,13 +46,6 @@ router.post("/checkin", async (req, res) => {
     newAttendance.employeeName = `${employee.firstName} ${employee.lastName}`;
     newAttendance.employeeId = employeeId;
 
-    if (io) {
-      io.emit("attendanceUpdate", {
-        eventType: "checkIn",
-        message: `${employee.firstName} ${employee.lastName} checked in.`,
-      });
-    }
-
     // io.emit("attendanceUpdate", {
     //   eventType: "checkin",
     //   message: `${employee.firstName} ${employee.lastName} checked in.`,
@@ -82,12 +75,12 @@ router.post("/break", async (req, res) => {
 
     await attendance.save();
 
-    if (io) {
-      io.emit("attendanceUpdate", {
-        eventType: "breakStart",
-        message: `${attendance.employeeName} Break Start.`,
-      });
-    }
+    // if (io) {
+    //   io.emit("attendanceUpdate", {
+    //     eventType: "breakStart",
+    //     message: `${attendance.employeeName} Break Start.`,
+    //   });
+    // }
 
     return res.status(200).json(attendance);
   } catch (error) {

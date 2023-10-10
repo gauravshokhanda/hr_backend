@@ -75,32 +75,35 @@ router.get("/notice/:id", async (req, res) => {
     }
 
     res.status(200).json(notice);
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-router.put("/notice/update", upload.single("image"), async (req, res) => {
+router.put("/update/:id", upload.single("image"), async (req, res) => {
   try {
-
-    const { id, heading, description, imgPath, tags } = req.body;
+    const { id } = req.params;
+    const { heading, description, tags } = req.body;
+    const imgPath = req.file ? req.file.path : undefined;
 
     const updateNotice = {
-      heading: heading,
-      description: description,
+      heading,
+      description,
       imgPath: imgPath,
-      tags: tags,
+      tags,
+      noticeDate: new Date(),
     };
 
-    const findNotice = await Notice.findByIdAndUpdate({ _id: id }, updateNotice);
+    const findNotice = await Notice.findByIdAndUpdate(
+      { _id: id },
+      updateNotice
+    );
 
-    if(!findNotice){
+    if (!findNotice) {
       return res.status(404).json({ message: "Notice not found" });
     }
     res.status(200).json(findNotice);
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
