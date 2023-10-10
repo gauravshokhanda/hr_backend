@@ -101,6 +101,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: '8h'  }
     );
 
+
     // Return the user information and token
     res.status(200).json({ user: employee, token });
   } catch (error) {
