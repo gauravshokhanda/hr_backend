@@ -10,7 +10,7 @@ router.post("/checkin", async (req, res) => {
   try {
     const { employeeId, date, checkIn } = req.body;
 
-    const normalizedDate = moment(date).startOf("day"); 
+    const normalizedDate = moment(date).startOf("day");
 
     // Fetch all attendance records for the given employee
     const allAttendanceRecords = await Attendance.find({
@@ -46,10 +46,10 @@ router.post("/checkin", async (req, res) => {
     newAttendance.employeeName = `${employee.firstName} ${employee.lastName}`;
     newAttendance.employeeId = employeeId;
 
-    io.emit("attendanceUpdate", {
-      eventType: "checkin",
-      message: `${employee.firstName} ${employee.lastName} checked in.`,
-    });
+    // io.emit("attendanceUpdate", {
+    //   eventType: "checkin",
+    //   message: `${employee.firstName} ${employee.lastName} checked in.`,
+    // });
     await newAttendance.save();
     return res.status(201).json(newAttendance);
   } catch (error) {
