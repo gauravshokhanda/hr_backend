@@ -43,7 +43,4 @@ app.use(
   express.static(path.join(__dirname, "upload/images"))
 );
 
-const server = http.createServer(app); // Create the HTTP server
-// const socketIoServer = socketIo(server);
-
 server.listen(port, () => console.log("Server started at " + port));
