@@ -75,7 +75,32 @@ router.get("/notice/:id", async (req, res) => {
     }
 
     res.status(200).json(notice);
-    768;
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.put("/notice/update", upload.single("image"), async (req, res) => {
+  try {
+
+    const { id, heading, description, imgPath, tags } = req.body;
+
+    const updateNotice = {
+      heading: heading,
+      description: description,
+      imgPath: imgPath,
+      tags: tags,
+    };
+
+    const findNotice = await Notice.findByIdAndUpdate({ _id: id }, updateNotice);
+
+    if(!findNotice){
+      return res.status(404).json({ message: "Notice not found" });
+    }
+    res.status(200).json(findNotice);
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
