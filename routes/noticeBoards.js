@@ -110,4 +110,20 @@ router.put("/update/:id", upload.single("image"), async (req, res) => {
   }
 });
 
+router.delete("/delete-notice/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleteNotice = await Notice.findOneAndDelete({ _id: id });
+    if(!deleteNotice){
+      return 	res.status(404).json({message:"Notice Not Found"})
+    }
+
+    res.status(200).json(deleteNotice);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
