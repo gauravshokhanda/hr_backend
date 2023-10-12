@@ -76,7 +76,7 @@ router.post("/create-salary", async (req, res) => {
       await salaryRecord.save();
 
       console.log("Successfully created salary");
-      return res.status(201).json({ message: "Successfully created salary" });
+      return res.status(200).json({ message: "Successfully created salary" });
     }
   } catch (error) {
     console.error(error);

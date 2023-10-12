@@ -24,7 +24,7 @@ const attendanceSchema = new mongoose.Schema({
       type: Date,
       required: false,
     },
-  ],  
+  ],
   status: {
     type: String,
     enum: ["present", "absent", "late", "holiday"],
@@ -38,6 +38,7 @@ const attendanceSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
+  breakStatus: { type: String, enum: ["in", "break"], default: "in" },
 });
 
 module.exports = mongoose.model("Attendance", attendanceSchema);

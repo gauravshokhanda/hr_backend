@@ -57,9 +57,8 @@ router.post("/checkin", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 // Break route
-router.post("/break", async (req, res) => {
+router.post('/break', async (req, res) => {
   try {
     const { attendanceId, breakStart } = req.body;
 
@@ -67,30 +66,28 @@ router.post("/break", async (req, res) => {
     const attendance = await Attendance.findById(attendanceId);
 
     if (!attendance) {
-      return res.status(404).json({ message: "Attendance record not found" });
+      return res.status(404).json({ message: 'Attendance record not found' });
     }
 
-    // Add the break start time to the array
-    attendance.breakStart.push(breakStart); // Assuming "breakStart" is a single date
+    if (attendance.breakStatus === 'in') {
+      // The user is currently "in," so they can take a break
+      attendance.breakStart.push(breakStart); // Assuming "breakStart" is a single date
+      attendance.breakStatus = 'break'; // Set the break status
 
-    await attendance.save();
+      await attendance.save();
 
-    // if (io) {
-    //   io.emit("attendanceUpdate", {
-    //     eventType: "breakStart",
-    //     message: `${attendance.employeeName} Break Start.`,
-    //   });
-    // }
-
-    return res.status(200).json(attendance);
+      return res.status(200).json(attendance);
+    } else {
+      return res.status(400).json({ message: 'User is not "in" to take a break' });
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
 // Break End route
-router.post("/breakend", async (req, res) => {
+router.post('/breakend', async (req, res) => {
   try {
     const { attendanceId, breakEnd } = req.body;
 
@@ -98,18 +95,23 @@ router.post("/breakend", async (req, res) => {
     const attendance = await Attendance.findById(attendanceId);
 
     if (!attendance) {
-      return res.status(404).json({ message: "Attendance record not found" });
+      return res.status(404).json({ message: 'Attendance record not found' });
     }
 
-    // Add the break start time to the array
-    attendance.breakEnd.push(breakEnd);
+    if (attendance.breakStatus === 'break') {
+      // The user is currently on "break," so they can end the break
+      attendance.breakEnd.push(breakEnd);
+      attendance.breakStatus = 'in'; // Set the status back to "in" after the break
 
-    await attendance.save();
+      await attendance.save();
 
-    return res.status(200).json(attendance);
+      return res.status(200).json(attendance);
+    } else {
+      return res.status(400).json({ message: 'User is not on "break" to end it' });
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
