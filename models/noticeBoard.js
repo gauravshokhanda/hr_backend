@@ -11,14 +11,10 @@ const noticeSchema = new mongoose.Schema({
   },
   imgPath: {
     type: String,
-    required: true,
   },
   noticeDate: {
     type: Date,
     required: true,
-  },
-  image: {
-    type: String,
   },
   tags: {
     type: [String],
