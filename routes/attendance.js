@@ -45,11 +45,8 @@ router.post("/checkin", async (req, res) => {
     }
     newAttendance.employeeName = `${employee.firstName} ${employee.lastName}`;
     newAttendance.employeeId = employeeId;
+    newAttendance.employeeImage = employee.image;
 
-    // io.emit("attendanceUpdate", {
-    //   eventType: "checkin",
-    //   message: `${employee.firstName} ${employee.lastName} checked in.`,
-    // });
     await newAttendance.save();
     return res.status(201).json(newAttendance);
   } catch (error) {
@@ -57,6 +54,8 @@ router.post("/checkin", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
+
 // Break route
 router.post('/break', async (req, res) => {
   try {
