@@ -42,7 +42,7 @@ router.post("/create-salary", async (req, res) => {
       }
     });
 
-    if (!hasExistingRecordForMonth) {
+    if (hasExistingRecordForMonth) {
       console.log("Already credited salary for this month");
       return res
         .status(400)

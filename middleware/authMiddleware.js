@@ -8,7 +8,7 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  console.log(token, "token");
+  // console.log(token, "token");
   jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
     if (err) {
       console.error("Token verification error:", err);
