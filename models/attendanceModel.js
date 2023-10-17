@@ -34,6 +34,9 @@ const attendanceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  employeeImage: {
+    type: String,
+  },
   employeeId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,

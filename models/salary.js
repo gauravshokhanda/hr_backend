@@ -24,7 +24,6 @@ const salarySchema = new mongoose.Schema({
   },
   bonus: {  
     type: Number,
-    required: true,
   },
   basicSalary: {
     type: Number,

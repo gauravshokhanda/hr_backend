@@ -42,14 +42,14 @@ router.post("/create-salary", async (req, res) => {
       }
     });
 
-    if (hasExistingRecordForMonth) {
+    if (!hasExistingRecordForMonth) {
       console.log("Already credited salary for this month");
       return res
         .status(400)
         .json({ message: "Already credited salary for this month" });
     } else {
       // Calculate HRA, Conveyance, and PF based on percentages
-      const totalSalary = employee.salary + bonusNumber;
+      const totalSalary = employee.salary + bonusNumber ? bonusNumber : 0;
       const hraSalary = (2 / 100) * totalSalary;
       const conveyance = (4 / 100) * totalSalary;
       const pfSalary = (8 / 100) * totalSalary;
@@ -76,7 +76,7 @@ router.post("/create-salary", async (req, res) => {
       await salaryRecord.save();
 
       console.log("Successfully created salary");
-      return res.status(200).json({ message: "Successfully created salary" });
+      return res.status(200).json({ message: "Successfully created salary", salaryRecord});
     }
   } catch (error) {
     console.error(error);

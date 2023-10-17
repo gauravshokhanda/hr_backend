@@ -198,4 +198,24 @@ router.get("/view/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// Delete employee
+
+router.delete("/delete-employee/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the employee by ID
+    const employee = await Employee.findByIdAndDelete(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    res.status(200).json(employee);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 module.exports = router;
