@@ -44,7 +44,20 @@ const salarySchema = new mongoose.Schema({
   creditMonth: {
     type: Date,
     required: true,
-  }
+  },
+  accountNumber: {
+    type: String,
+    required: true,
+  },
+  ifscCode: {
+    type: String,
+    required: true,
+  },
+  dateOfJoining: {
+    type: Date,
+    required: true,
+  },
+
 });
 
 module.exports = mongoose.model("Salary", salarySchema);

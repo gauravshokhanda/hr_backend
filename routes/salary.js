@@ -60,6 +60,9 @@ router.post("/create-salary", async (req, res) => {
       const salaryRecord = new Salary({
         employeeId,
         employeeName: `${employee.firstName} ${employee.lastName}`,
+        accountNumber: employee.accountNumber ? employee.accountNumber : "",
+        dateOfJoining: employee.dateOfJoining ? employee.dateOfJoining : "",
+        ifscCode: employee.ifscCode ? employee.ifscCode : "",
         monthlySalary: employee.salary,
         totalWorkingDays: totalWorkingDaysNumber,
         bonus: bonusNumber,
